@@ -1,20 +1,9 @@
-"""
-vpn_frontend.py — Tkinter GUI for AdGuard VPN CLI control.
-
-Provides:
-  - A dropdown to select a VPN location (first entry = automatic/fastest).
-  - A single Connect / Disconnect toggle button.
-  - A status label that reflects the current connection state.
-  - A log area showing raw CLI output.
-  - Background threading so the GUI never freezes during CLI calls.
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
 from typing import Optional
 
-from vpn_backend import AdGuardVpnBackend, VpnLocation, VpnStatus
+from backend import AdGuardVpnBackend, VpnLocation, VpnStatus
 
 
 # ---------------------------------------------------------------------------

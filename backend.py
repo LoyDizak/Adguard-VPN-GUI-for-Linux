@@ -1,37 +1,3 @@
-"""
-vpn_backend.py — Backend logic for AdGuard VPN GUI.
-
-Handles all subprocess calls to adguardvpn-cli, privilege escalation via
-sudo + SUDO_ASKPASS (graphical password dialog), ANSI-escape stripping,
-and location list parsing.
-
-WHY sudo + SUDO_ASKPASS instead of pkexec
-------------------------------------------
-pkexec runs the target process as root in a *clean environment* — HOME is
-set to /root, not to the real user's home directory.  AdGuard VPN CLI stores
-its login session in ~/.local/share/adguardvpn-cli, so running it under
-pkexec makes it look in /root/... and see no credentials → "not logged in".
-
-The correct approach for Linux desktop apps is:
-  sudo -A -E adguardvpn-cli connect ...
-
-  -A  tells sudo to use the program in the SUDO_ASKPASS environment variable
-      to ask for the password graphically (no terminal prompt).
-  -E  preserves the calling user's environment, including HOME, so the CLI
-      finds the right session data.
-
-SUDO_ASKPASS candidates (tried in order):
-  1. x11-ssh-askpass   — ships with ssh-askpass-gnome / openssh-askpass on
-                         Linux Mint and Ubuntu
-  2. ssh-askpass       — generic symlink, may point to any askpass helper
-  3. zenity            — GTK dialog tool, available on most GNOME/Cinnamon desktops
-  4. kdialog           — KDE equivalent
-
-The user must have NOPASSWD or normal sudo rights for adguardvpn-cli.
-If sudo itself is not configured, the askpass dialog will appear on first
-run and sudo will cache the credentials for a few minutes.
-"""
-
 import os
 import re
 import shutil
@@ -389,7 +355,7 @@ class AdGuardVpnBackend:
     def disconnect(self) -> tuple:
         """Disconnect from VPN. Does not require elevated privileges."""
         print("[backend] Disconnecting from VPN...")
-        return self._run_plain_command(["disconnect"])
+        return self._run_privileged_command(["disconnect"])
 
 
 # ---------------------------------------------------------------------------

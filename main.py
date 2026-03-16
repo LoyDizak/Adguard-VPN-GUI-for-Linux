@@ -9,7 +9,7 @@ Build with PyInstaller (single file):
 """
 
 import tkinter as tk
-from vpn_frontend import VpnApplicationWindow
+from frontend import VpnApplicationWindow
 
 
 def main():
