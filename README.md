@@ -17,7 +17,7 @@ See the [How to install](#how-to-install) section below.
 Essentially, it's just a visual wrapper on top of AdGuard's original CLI application.
 
 - **Is it safe?**
-No, I will steal ALL of your data. In fact, I already did that.
+No, I will steal ALL your data. In fact, I already did that.
 
 - **Will it work on my PC?**
 This application was only tested on Linux Mint 22.3 - Cinnamon 64-bit. Good luck.
@@ -25,7 +25,7 @@ This application was only tested on Linux Mint 22.3 - Cinnamon 64-bit. Good luck
 - **Can I use your code and do my own thing?**
 Yeah, whatever.
 
-Q&A is over. \*mic drop\*
+This Q&A is over. \*mic drop\*
 
 
 
