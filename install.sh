@@ -22,8 +22,7 @@ else
         rm -f adguardvpn-cli-*.tar.gz
         CLI_INSTALLED=true
     else
-        echo "AdGuard VPN CLI is required. Exiting installation."
-        exit 1
+        echo "You can install it later yourself. Visit official AdGAdGuard VPN website for more information"
     fi
 fi
 
@@ -63,10 +62,12 @@ if [ "$CLI_INSTALLED" = true ]; then
     if adguardvpn-cli license 2>/dev/null | grep -q "Logged in as"; then
         :  # Already logged in, do nothing
     else
-        echo "Do you want to log in to your account? (you can do this later with: adguardvpn-cli login) [y/n]"
+        echo "Do you want to log in to your account? [y/n]"
         read -r login_answer
         if [[ "$login_answer" =~ ^[Yy]$ ]]; then
             adguardvpn-cli login 
+        else
+            echo "You can do this later by running \"adguardvpn-cli login\""
         fi
     fi
 fi
