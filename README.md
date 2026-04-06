@@ -1,6 +1,13 @@
 # AdGuard VPN GUI for Linux
-
+![alt text](interface.png)
+---
 AdGuard team didn't properly port their VPN on Linux for some reason, so I did it myself. It's entirely vibecoded btw.
+
+### Features:
+- **Sexy interface**
+- **Pretty task bar icon**
+- **Super easy installation**
+- **One-click connection**
 
 ### Q&A:
 - **How do I install it?**
@@ -25,7 +32,7 @@ Q&A is over. \*mic drop\*
 
 ## How to install
 
-Get the latest binary [here](https://github.com/LoyDizak/AdGuard-VPN-GUI-for-Linux/releases/latest)
+### Get the latest binary [here](https://github.com/LoyDizak/AdGuard-VPN-GUI-for-Linux/releases/latest)
 
 Extract the archive and run the install script:
 
@@ -34,9 +41,11 @@ tar -xzf adGuardvpn-gui.tar.gz
 bash install.sh
 ```
 
-Note that you will need to log in to your AdGuard VPN account. You can do that in the installer script or by running the following command:
+If you don't have adguardvpn-cli installed, the install script will prompt you to install it and log in to your account
 
-```bash
+You can do it yourself later by running the following command:
+
+```bas
 adguardvpn-cli login
 ```
 
