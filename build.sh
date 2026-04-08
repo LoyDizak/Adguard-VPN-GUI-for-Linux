@@ -17,13 +17,9 @@ python3 -m PyInstaller \
 
 mkdir -p "${TARGET_DIR}"
 
-# 2. Find unique name for archive
-NEW_NAME="${BUILD_NAME}"
-count=1
-while [[ -e "${TARGET_DIR}/${NEW_NAME}.tar.gz" ]]; do
-    NEW_NAME="${APP_NAME} (${count})"
-    ((count++))
-done
+# 2. Generate archive name with current date and time
+TIMESTAMP=$(date +"%d.%m.%Y %H:%M")
+NEW_NAME="${BUILD_NAME} ${TIMESTAMP}"
 
 # 3. Prepare temp folder for archive contents
 TEMP_DIR=$(mktemp -d)
