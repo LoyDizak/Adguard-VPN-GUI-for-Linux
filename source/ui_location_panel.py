@@ -35,15 +35,23 @@ def _ping_color(ping: int) -> str:
 # ── Section header widget ──────────────────────────────────────────────────
 
 class _SectionHeader(tk.Frame):
-    def __init__(self, parent, title: str):
+    def __init__(self, parent, title: str, on_mousewheel: Callable = None):
         super().__init__(parent, bg=T.BG_PANEL)
-        tk.Label(
+        label = tk.Label(
             self, text=title.upper(),
             font=("Helvetica", 8, "bold"),
             fg=T.TEXT_SECONDARY,
             bg=T.BG_PANEL,
             pady=4,
-        ).pack(side="left", padx=T.PAD)
+        )
+        label.pack(side="left", padx=T.PAD)
+        
+        # Bind mousewheel events to allow scrolling over headers
+        if on_mousewheel:
+            for widget in [self, label]:
+                widget.bind("<MouseWheel>", on_mousewheel)
+                widget.bind("<Button-4>", on_mousewheel)
+                widget.bind("<Button-5>", on_mousewheel)
 
 
 # ── Individual location row ────────────────────────────────────────────────
@@ -312,13 +320,15 @@ class LocationPanel(tk.Frame):
 
         # ── Fastest locations (top 5 sorted by ping) ─────────────────
         fastest = sorted(locations, key=lambda l: l.ping_estimate)[:5]
-        _SectionHeader(self._list_frame, "Fastest locations").pack(fill="x")
+        _SectionHeader(self._list_frame, "Fastest locations", 
+                       on_mousewheel=self._on_mousewheel).pack(fill="x")
         for loc in fastest:
             self._add_row(loc)
 
         # ── All locations (alphabetical) ─────────────────────────────
         all_sorted = sorted(locations, key=lambda l: (l.country, l.city))
-        _SectionHeader(self._list_frame, "All locations").pack(fill="x")
+        _SectionHeader(self._list_frame, "All locations", 
+                       on_mousewheel=self._on_mousewheel).pack(fill="x")
         for loc in all_sorted:
             self._add_row(loc)
 
