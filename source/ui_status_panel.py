@@ -55,9 +55,9 @@ class StatusPanel(tk.Frame):
         badge_frame = tk.Frame(self, bg=T.BG_SURFACE)
         badge_frame.grid(row=1, column=0, pady=(T.PAD, 4))
 
-        self._dot = tk.Label(badge_frame, text="●", font=("Helvetica", 14),
+        self._status_dot = tk.Label(badge_frame, text="●", font=("Helvetica", 14),
                              fg=T.ACCENT_RED, bg=T.BG_SURFACE)
-        self._dot.pack(side="left", padx=(0, 6))
+        self._status_dot.pack(side="left", padx=(0, 6))
 
         self._status_label = tk.Label(
             badge_frame, text="Disconnected",
@@ -73,7 +73,7 @@ class StatusPanel(tk.Frame):
         self._location_label.grid(row=2, column=0, pady=(0, T.PAD))
 
         # Action button
-        self._btn = tk.Button(
+        self._connect_button = tk.Button(
             self,
             text="Connect",
             font=T.FONT_BODY_BOLD,
@@ -87,7 +87,7 @@ class StatusPanel(tk.Frame):
             bd=0,
             command=self._on_button_clicked,
         )
-        self._btn.grid(row=3, column=0, padx=T.PAD, pady=(0, T.PAD), sticky="ew")
+        self._connect_button.grid(row=3, column=0, padx=T.PAD, pady=(0, T.PAD), sticky="ew")
 
         # Separator
         sep = tk.Frame(self, bg=T.BORDER, height=1)
@@ -128,20 +128,20 @@ class StatusPanel(tk.Frame):
     def update_status(self, vpn_status: VpnStatus):
         """Refresh all status indicators from a VpnStatus object."""
         if vpn_status.is_connected:
-            self._dot.configure(fg=T.ACCENT_GREEN)
+            self._status_dot.configure(fg=T.ACCENT_GREEN)
             self._status_label.configure(text="Connected")
             loc = vpn_status.location_name or ""
             self._location_label.configure(text=loc)
-            self._btn.configure(
+            self._connect_button.configure(
                 text="Disconnect",
                 bg=T.ACCENT_RED,
                 activebackground=T.ACCENT_RED_D,
             )
         else:
-            self._dot.configure(fg=T.ACCENT_RED)
+            self._status_dot.configure(fg=T.ACCENT_RED)
             self._status_label.configure(text="Disconnected")
             self._location_label.configure(text="")
-            self._btn.configure(
+            self._connect_button.configure(
                 text="Connect",
                 bg=T.ACCENT_GREEN,
                 activebackground=T.ACCENT_GREEN_D,
@@ -151,10 +151,10 @@ class StatusPanel(tk.Frame):
         """Disable/enable controls during in-progress operations."""
         self._is_busy = busy
         if busy:
-            self._btn.configure(text=label or "Please wait…",
+            self._connect_button.configure(text=label or "Please wait…",
                                 state="disabled", bg=T.BG_ITEM)
         else:
-            self._btn.configure(state="normal")
+            self._connect_button.configure(state="normal")
 
     def append_log(self, message: str):
         """Append a line to the output log."""
@@ -168,7 +168,7 @@ class StatusPanel(tk.Frame):
     def _on_button_clicked(self):
         if self._is_busy:
             return
-        text = self._btn.cget("text")
+        text = self._connect_button.cget("text")
         if text == "Disconnect":
             self._on_disconnect()
         else:

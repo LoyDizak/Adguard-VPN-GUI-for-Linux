@@ -15,8 +15,8 @@ import tkinter as tk
 from typing import Optional
 
 import ui_theme as T
-from ui_status_panel   import StatusPanel
-from ui_location_panel import LocationPanel
+from ui_status_panel import StatusPanel
+from ui_locations_panel import LocationPanel
 from backend import AdGuardVpnBackend, VpnStatus
 
 
@@ -116,7 +116,7 @@ class VpnApplicationWindow:
     def _on_locations_loaded(self, success: bool, locations: list):
         if not success or not locations:
             self._status_panel.append_log(
-                "⚠  Could not load locations. Is adguardvpn-cli installed?"
+                "Could not load locations. Is adguardvpn-cli installed?"
             )
             return
         self._location_panel.set_locations(locations)

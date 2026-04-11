@@ -257,7 +257,7 @@ class LocationPanel(tk.Frame):
             self._list_frame, text="Loading locations…",
             font=T.FONT_BODY, fg=T.TEXT_SECONDARY, bg=T.BG_PANEL,
         )
-        self._loading_label.pack(pady=T.PAD * 2)
+        self._loading_label.pack(pady=T.PAD * 2, anchor="center")
 
     # ── Public API ────────────────────────────────────────────────────
 
