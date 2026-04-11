@@ -24,7 +24,6 @@ class VpnApplicationWindow:
     """Root application window."""
 
     def __init__(self, root: tk.Tk):
-        print("[frontend] Initialising application window.")
         self.root    = root
         self.backend = AdGuardVpnBackend()
         self._current_connected_city: Optional[str] = None
@@ -120,7 +119,6 @@ class VpnApplicationWindow:
                 "⚠  Could not load locations. Is adguardvpn-cli installed?"
             )
             return
-        print(f"[frontend] Loaded {len(locations)} locations.")
         self._location_panel.set_locations(locations)
 
     # ── Status polling ────────────────────────────────────────────────
@@ -171,7 +169,6 @@ class VpnApplicationWindow:
         self._status_panel.set_busy(False)
         self._status_panel.append_log(output)
         if not success:
-            print(f"[frontend] Connect failed: {output[:200]}")
             tk.messagebox.showerror(
                 "Connection failed",
                 f"Could not connect to VPN.\n\n{output[:400]}",

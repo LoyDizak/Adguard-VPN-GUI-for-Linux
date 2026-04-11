@@ -69,16 +69,12 @@ def _find_askpass_program() -> Optional[str]:
     for program_name in _ASKPASS_PROGRAM_CANDIDATES:
         full_path = shutil.which(program_name)
         if full_path:
-            print(f"[backend] Found askpass program: {full_path}")
             return full_path
 
     # Last resort: try zenity (GTK dialog tool present on most Cinnamon desktops)
     zenity_path = shutil.which("zenity")
     if zenity_path:
-        print(f"[backend] Will use zenity as askpass fallback: {zenity_path}")
         return None  # zenity needs a wrapper script — handled separately
-
-    print("[backend] WARNING: No graphical askpass program found.")
     return None
 
 
@@ -113,10 +109,8 @@ def _create_zenity_askpass_script() -> Optional[str]:
 
         # Make the script executable
         os.chmod(script_file.name, stat.S_IRWXU)
-        print(f"[backend] Created zenity askpass script: {script_file.name}")
         return script_file.name
     except Exception as error:
-        print(f"[backend] Could not create zenity askpass script: {error}")
         return None
 
 
@@ -144,20 +138,11 @@ class AdGuardVpnBackend:
             if self._zenity_script_path:
                 self._askpass_program_path = self._zenity_script_path
 
-        if self._askpass_program_path:
-            print(f"[backend] Will use askpass: {self._askpass_program_path}")
-        else:
-            print(
-                "[backend] WARNING: No askpass helper available. "
-                "sudo may prompt in the terminal instead."
-            )
-
     def __del__(self):
         """Clean up temporary zenity script if we created one."""
         if self._zenity_script_path and os.path.exists(self._zenity_script_path):
             try:
                 os.unlink(self._zenity_script_path)
-                print(f"[backend] Removed temporary askpass script: {self._zenity_script_path}")
             except Exception:
                 pass
 
@@ -176,7 +161,6 @@ class AdGuardVpnBackend:
         environment = os.environ.copy()
         if self._askpass_program_path:
             environment["SUDO_ASKPASS"] = self._askpass_program_path
-            print(f"[backend] SUDO_ASKPASS set to: {self._askpass_program_path}")
         return environment
 
     def _run_plain_command(self, arguments: list) -> tuple:
@@ -185,7 +169,6 @@ class AdGuardVpnBackend:
         Returns (success: bool, cleaned_output: str).
         """
         full_command = [self.CLI_EXECUTABLE] + arguments
-        print(f"[backend] Running plain command: {full_command}")
         try:
             result = subprocess.run(
                 full_command,
@@ -197,23 +180,18 @@ class AdGuardVpnBackend:
             combined_output = result.stdout + result.stderr
             clean_output = strip_ansi_codes(combined_output).strip()
             success = result.returncode == 0
-            print(f"[backend] Exit code: {result.returncode}")
-            print(f"[backend] Output preview: {clean_output[:300]}")
             return success, clean_output
         except FileNotFoundError:
             message = (
                 f"'{self.CLI_EXECUTABLE}' not found.\n"
                 "Please make sure AdGuard VPN CLI is installed."
             )
-            print(f"[backend] ERROR: {message}")
             return False, message
         except subprocess.TimeoutExpired:
             message = "Command timed out after 30 seconds."
-            print(f"[backend] ERROR: {message}")
             return False, message
         except Exception as error:
             message = f"Unexpected error: {error}"
-            print(f"[backend] ERROR: {message}")
             return False, message
 
     def _run_privileged_command(self, arguments: list) -> tuple:
@@ -233,7 +211,6 @@ class AdGuardVpnBackend:
         """
         sudo_path = shutil.which("sudo")
         if not sudo_path:
-            print("[backend] ERROR: sudo not found — cannot escalate privileges.")
             return False, "sudo is not installed. Cannot escalate privileges."
 
         cli_path = shutil.which(self.CLI_EXECUTABLE)
@@ -242,13 +219,11 @@ class AdGuardVpnBackend:
                 f"'{self.CLI_EXECUTABLE}' not found.\n"
                 "Please make sure AdGuard VPN CLI is installed."
             )
-            print(f"[backend] ERROR: {message}")
             return False, message
 
         # Use the full path to the CLI so sudo can find it regardless of PATH
         full_command = [sudo_path, "-A", "-E", cli_path] + arguments
 
-        print(f"[backend] Running privileged command: {full_command}")
         environment = self._build_user_environment()
 
         try:
@@ -261,8 +236,6 @@ class AdGuardVpnBackend:
             )
             combined_output = result.stdout + result.stderr
             clean_output = strip_ansi_codes(combined_output).strip()
-            print(f"[backend] Privileged exit code: {result.returncode}")
-            print(f"[backend] Privileged output preview: {clean_output[:300]}")
 
             # sudo returns 1 when the askpass program is cancelled or fails
             if result.returncode != 0 and not clean_output:
@@ -273,11 +246,9 @@ class AdGuardVpnBackend:
 
         except subprocess.TimeoutExpired:
             message = "Privileged command timed out after 60 seconds."
-            print(f"[backend] ERROR: {message}")
             return False, message
         except Exception as error:
             message = f"Unexpected error during privileged command: {error}"
-            print(f"[backend] ERROR: {message}")
             return False, message
 
     # ------------------------------------------------------------------
@@ -286,7 +257,6 @@ class AdGuardVpnBackend:
 
     def get_status(self) -> VpnStatus:
         """Query the current VPN connection status."""
-        print("[backend] Querying VPN status...")
         success, output = self._run_plain_command(["status"])
         if not output:
             return VpnStatus(is_connected=False, raw_output="Could not get status.")
@@ -306,7 +276,6 @@ class AdGuardVpnBackend:
                 location_name = line.strip()
                 break
 
-        print(f"[backend] is_connected={is_connected}  location={location_name!r}")
         return VpnStatus(
             is_connected=is_connected,
             location_name=location_name,
@@ -319,14 +288,11 @@ class AdGuardVpnBackend:
         Returns (success: bool, locations: list[VpnLocation]).
         The list is sorted by ping estimate (fastest first).
         """
-        print("[backend] Fetching location list...")
         success, output = self._run_plain_command(["list-locations"])
         if not success:
-            print("[backend] Failed to fetch locations.")
             return False, []
 
         locations = _parse_locations_from_output(output)
-        print(f"[backend] Parsed {len(locations)} locations.")
         return True, locations
 
     def connect(self, city_name: Optional[str] = None) -> tuple:
@@ -339,10 +305,8 @@ class AdGuardVpnBackend:
         user's HOME (login session) is preserved.
         """
         if city_name:
-            print(f"[backend] Connecting to city: {city_name!r}")
             arguments = ["connect", "-l", city_name]
         else:
-            print("[backend] Connecting to fastest location (automatic).")
             arguments = ["connect"]
 
         success, output = self._run_privileged_command(arguments)
@@ -354,7 +318,6 @@ class AdGuardVpnBackend:
 
     def disconnect(self) -> tuple:
         """Disconnect from VPN. Does not require elevated privileges."""
-        print("[backend] Disconnecting from VPN...")
         return self._run_privileged_command(["disconnect"])
 
 
@@ -394,7 +357,6 @@ def _parse_locations_from_output(raw_output: str) -> list:
             if location is not None:
                 locations.append(location)
         except Exception as parse_error:
-            print(f"[backend] Skipping unparseable line: {stripped_line!r} — {parse_error}")
             continue
 
     locations.sort(key=lambda location_entry: location_entry.ping_estimate)
